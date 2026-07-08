@@ -1,16 +1,11 @@
-import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 import { prisma } from './prisma'
+import { generateToken, verifyToken, type JwtPayload } from './auth-jwt'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'lcg-secret-key-change-in-production'
+export { generateToken, verifyToken, type JwtPayload }
+
 const SALT_ROUNDS = 10
-
-export interface JwtPayload {
-  id: number
-  username: string
-  role: string
-}
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS)
@@ -18,18 +13,6 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash)
-}
-
-export function generateToken(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
-}
-
-export function verifyToken(token: string): JwtPayload | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as JwtPayload
-  } catch {
-    return null
-  }
 }
 
 export async function getCurrentUser() {
