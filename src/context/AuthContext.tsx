@@ -51,6 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth()
   }, [checkAuth])
 
+  const setClientCookie = (token: string) => {
+    const secure = window.location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `lcg_token=${token}; SameSite=Lax; Max-Age=86400; Path=/${secure}`
+  }
+
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       const res = await fetch('/api/auth/login', {
@@ -61,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json()
       if (res.ok) {
         setUser(data.user)
+        setClientCookie(data.token)
         toast.success('Connexion réussie')
         return true
       } else {

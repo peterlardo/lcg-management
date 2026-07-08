@@ -37,13 +37,7 @@ export async function POST(request: NextRequest) {
     })
 
     const { password: _, ...userWithoutPassword } = user
-    const response = NextResponse.json({ user: userWithoutPassword, token })
-    const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
-    response.headers.set(
-      'Set-Cookie',
-      `lcg_token=${token}; HttpOnly${secure}; SameSite=Lax; Max-Age=86400; Path=/`
-    )
-    return response
+    return NextResponse.json({ user: userWithoutPassword, token })
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
