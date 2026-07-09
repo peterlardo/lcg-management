@@ -50,6 +50,10 @@ model PointOfSale {
   address   String?
   city      String   @default("Brazzaville")
   phone     String?
+  lat       Float?
+  lng       Float?
+  managerName String?
+  managerPhone String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
