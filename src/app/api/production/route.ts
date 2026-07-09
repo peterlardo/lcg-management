@@ -44,10 +44,10 @@ export async function POST(request: NextRequest) {
         data: {
           batchNumber,
           productId,
-          quantityProduced: parseInt(body.quantityProduced) || 0,
-          quantityLost: parseInt(body.quantityLost) || 0,
+          quantityProduced,
+          quantityLost,
           notes: body.notes || null,
-          destinationDepotId: body.destinationDepotId || null,
+          destinationDepotId,
           productionDate: body.productionDate ? new Date(body.productionDate) : new Date(),
           userId: user.id,
         },
