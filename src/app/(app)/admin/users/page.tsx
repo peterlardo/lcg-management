@@ -12,6 +12,9 @@ export default function UsersPage() {
   const [saving, setSaving] = useState(false)
 
   const [form, setForm] = useState({ username: '', email: '', firstName: '', lastName: '', password: '', role: 'CAISSIER', phone: '', pointOfSaleId: '' })
+  const [resetModal, setResetModal] = useState<{ id: number; name: string } | null>(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [resetting, setResetting] = useState(false)
   const [posList, setPosList] = useState<any[]>([])
 
   const fetchUsers = async () => {
@@ -84,9 +87,14 @@ export default function UsersPage() {
                   <td>{u.isActive ? <span className="badge-success">Actif</span> : <span className="badge-danger">Inactif</span>}</td>
                   <td className="text-xs text-gray-400">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString('fr-FR') : 'Jamais'}</td>
                   <td>
-                    <button onClick={() => handleToggle(u.id, u.isActive)} className={`btn-sm ${u.isActive ? 'text-red-500 hover:bg-red-50' : 'text-green-500 hover:bg-green-50'}`}>
-                      {u.isActive ? 'Désactiver' : 'Activer'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleToggle(u.id, u.isActive)} className={`btn-sm ${u.isActive ? 'text-red-500 hover:bg-red-50' : 'text-green-500 hover:bg-green-50'}`}>
+                        {u.isActive ? 'Désactiver' : 'Activer'}
+                      </button>
+                      <button onClick={() => { setResetModal({ id: u.id, name: `${u.firstName} ${u.lastName}` }); setNewPassword('') }} className="btn-sm text-lcg-600 hover:bg-lcg-50">
+                        Réinitialiser
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -94,6 +102,32 @@ export default function UsersPage() {
           </table>
         )}
       </div>
+
+      {resetModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setResetModal(null)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold">Réinitialiser mot de passe</h2>
+            <p className="text-sm text-gray-500">Nouveau mot de passe pour <strong>{resetModal.name}</strong></p>
+            <input type="password" className="input-field" placeholder="Nouveau mot de passe" value={newPassword} onChange={e => setNewPassword(e.target.value)} autoFocus />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setResetModal(null)} className="btn-secondary">Annuler</button>
+              <button onClick={async () => {
+                if (!newPassword || newPassword.length < 4) { toast.error('Minimum 4 caractères'); return }
+                setResetting(true)
+                const res = await fetch(`/api/admin/users/${resetModal.id}`, {
+                  method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ password: newPassword }),
+                })
+                if (res.ok) { toast.success('Mot de passe réinitialisé'); setResetModal(null) }
+                else toast.error('Erreur')
+                setResetting(false)
+              }} disabled={resetting} className="btn-primary">
+                {resetting ? 'En cours...' : 'Enregistrer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>

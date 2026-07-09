@@ -10,15 +10,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const body = await request.json()
-    const data: any = {
-      firstName: body.firstName,
-      lastName: body.lastName,
-      email: body.email,
-      role: body.role,
-      phone: body.phone || null,
-      pointOfSaleId: body.pointOfSaleId ? parseInt(body.pointOfSaleId) : null,
-      isActive: body.isActive === 'true' || body.isActive === true,
-    }
+    const data: any = {}
+
+    if (body.firstName !== undefined) data.firstName = body.firstName
+    if (body.lastName !== undefined) data.lastName = body.lastName
+    if (body.email !== undefined) data.email = body.email
+    if (body.role !== undefined) data.role = body.role
+    if (body.phone !== undefined) data.phone = body.phone || null
+    if (body.pointOfSaleId !== undefined) data.pointOfSaleId = body.pointOfSaleId ? parseInt(body.pointOfSaleId) : null
+    if (body.isActive !== undefined) data.isActive = body.isActive === 'true' || body.isActive === true
 
     if (body.password) {
       data.password = await hashPassword(body.password)
