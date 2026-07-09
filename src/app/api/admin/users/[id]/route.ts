@@ -12,6 +12,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const body = await request.json()
     const data: any = {}
 
+    if (body.username !== undefined) data.username = body.username.trim().toLowerCase()
     if (body.firstName !== undefined) data.firstName = body.firstName
     if (body.lastName !== undefined) data.lastName = body.lastName
     if (body.email !== undefined) data.email = body.email

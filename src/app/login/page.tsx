@@ -20,7 +20,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const success = await login(username, password)
+    const success = await login(username.trim(), password)
     setLoading(false)
     if (success) { router.push('/dashboard'); return }
   }

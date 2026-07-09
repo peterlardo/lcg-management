@@ -4,10 +4,11 @@ import { verifyPassword, generateToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json()
+    let { username, password } = await request.json()
     if (!username || !password) {
       return NextResponse.json({ error: 'Identifiants requis' }, { status: 400 })
     }
+    username = username.trim().toLowerCase()
 
     const user = await prisma.user.findUnique({
       where: { username },
