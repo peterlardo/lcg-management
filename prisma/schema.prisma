@@ -142,6 +142,7 @@ model Product {
   deliveryNoteItems DeliveryNoteItem[]
   reservationItems  ReservationItem[]
   orderItems        OrderItem[]
+  subscriptions     ClientSubscription[]
 
   @@map("products")
 }
@@ -163,6 +164,7 @@ model Client {
   sales        Sale[]
   reservations Reservation[]
   orders       Order[]
+  subscriptions ClientSubscription[]
 
   @@map("clients")
 }
@@ -529,4 +531,41 @@ model Setting {
   group String @default("general")
 
   @@map("settings")
+}
+
+model NotificationLog {
+  id          Int      @id @default(autoincrement())
+  type        String   // ABONNEMENT_EXPIRATION | RELANCE_PAIEMENT | CONFIRMATION_LIVRAISON | RAPPEL_RESERVATION
+  recipient   String   // email or phone
+  recipientName String?
+  message     String
+  status      String   @default("ENVOYÉ") // ENVOYÉ | ÉCHOUÉ | EN_ATTENTE
+  reference   String?  // reference to related entity (order ref, sale ref, etc.)
+  entityType  String?  // ORDER | RESERVATION | SUBSCRIPTION | SALE
+  entityId    Int?
+  sentAt      DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@map("notification_logs")
+}
+
+model ClientSubscription {
+  id                Int      @id @default(autoincrement())
+  clientId          Int
+  client            Client   @relation(fields: [clientId], references: [id])
+  productId         Int
+  product           Product  @relation(fields: [productId], references: [id])
+  quantity          Int      @default(1)
+  frequency         String   @default("HEBDOMADAIRE") // HEBDOMADAIRE | BI_MENSUEL | MENSUEL
+  pricePerUnit      Float    @default(0)
+  totalPrice        Float    @default(0)
+  startDate         DateTime @default(now())
+  endDate           DateTime?
+  nextDeliveryDate  DateTime?
+  status            String   @default("ACTIF") // ACTIF | SUSPENDU | EXPIRÉ | RÉSILIÉ
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("client_subscriptions")
 }
