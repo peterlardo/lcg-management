@@ -144,7 +144,7 @@ export default function RapportsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">Rapports de gestion</h1>
       </div>
@@ -159,15 +159,33 @@ export default function RapportsPage() {
           </div>
           <div>
             <label className="label-field">Date début</label>
-            <input type="date" className="input-field" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+            <div className="relative">
+              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <input type="date" className="input-field pl-10" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+            </div>
           </div>
           <div>
             <label className="label-field">Date fin</label>
-            <input type="date" className="input-field" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+            <div className="relative">
+              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <input type="date" className="input-field pl-10" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+            </div>
           </div>
           <div className="flex items-end">
             <button onClick={generateReport} disabled={loading} className="btn-primary w-full">
-              {loading ? 'Génération...' : 'Générer le rapport'}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Génération...
+                </span>
+              ) : 'Générer le rapport'}
             </button>
           </div>
         </div>
@@ -177,50 +195,65 @@ export default function RapportsPage() {
         <>
           <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">
+              <h3 className="text-base font-semibold text-gray-900">
                 {reportTypes.find(r => r.value === reportType)?.label}
               </h3>
               <div className="flex gap-2">
-                <button onClick={exportPDF} className="btn-secondary text-sm">📄 PDF</button>
-                <button onClick={exportExcel} className="btn-secondary text-sm">📊 Excel</button>
-                <button onClick={exportCSV} className="btn-secondary text-sm">📃 CSV</button>
+                <button onClick={exportPDF} className="btn-secondary btn-sm">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  PDF
+                </button>
+                <button onClick={exportExcel} className="btn-secondary btn-sm">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Excel
+                </button>
+                <button onClick={exportCSV} className="btn-secondary btn-sm">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  CSV
+                </button>
               </div>
             </div>
 
             {data.sales && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="table-container border-0 rounded-none shadow-none">
+                <table className="table">
                   <thead>
-                    <tr className="text-left text-gray-500 border-b">
-                      <th className="py-3 px-2">Réf</th>
-                      <th className="py-3 px-2">Date</th>
-                      <th className="py-3 px-2">Client</th>
-                      <th className="py-3 px-2">Vendeur</th>
-                      <th className="py-3 px-2">Point de vente</th>
-                      <th className="py-3 px-2 text-right">Total</th>
-                      <th className="py-3 px-2">Statut</th>
+                    <tr>
+                      <th>Réf</th>
+                      <th>Date</th>
+                      <th>Client</th>
+                      <th>Vendeur</th>
+                      <th>Point de vente</th>
+                      <th className="text-right">Total</th>
+                      <th>Statut</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.sales.map((s: any) => (
-                      <tr key={s.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-2 font-mono text-xs">{s.reference}</td>
-                        <td className="py-3 px-2">{formatDateTime(s.createdAt)}</td>
-                        <td className="py-3 px-2">{s.client?.name || '—'}</td>
-                        <td className="py-3 px-2">{s.user?.firstName} {s.user?.lastName}</td>
-                        <td className="py-3 px-2">{s.pointOfSale?.name || '—'}</td>
-                        <td className="py-3 px-2 text-right font-bold">{formatCurrency(s.total)}</td>
-                        <td className="py-3 px-2">
-                          <span className="badge bg-green-100 text-green-800">{s.status}</span>
+                      <tr key={s.id}>
+                        <td className="font-mono text-xs">{s.reference}</td>
+                        <td>{formatDateTime(s.createdAt)}</td>
+                        <td>{s.client?.name || '—'}</td>
+                        <td>{s.user?.firstName} {s.user?.lastName}</td>
+                        <td>{s.pointOfSale?.name || '—'}</td>
+                        <td className="text-right font-bold">{formatCurrency(s.total)}</td>
+                        <td>
+                          <span className="badge-success">{s.status}</span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr className="font-bold border-t-2">
-                      <td colSpan={5} className="py-3 px-2 text-right">Total:</td>
-                      <td className="py-3 px-2 text-right">{formatCurrency(data.total)}</td>
-                      <td className="py-3 px-2">{data.count} ventes</td>
+                      <td colSpan={5} className="text-right px-4 py-3">Total:</td>
+                      <td className="px-4 py-3 text-right">{formatCurrency(data.total)}</td>
+                      <td className="px-4 py-3">{data.count} ventes</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -228,26 +261,26 @@ export default function RapportsPage() {
             )}
 
             {data.stock && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="table-container border-0 rounded-none shadow-none">
+                <table className="table">
                   <thead>
-                    <tr className="text-left text-gray-500 border-b">
-                      <th className="py-3 px-2">Produit</th>
-                      <th className="py-3 px-2">Lieu</th>
-                      <th className="py-3 px-2 text-right">Stock</th>
-                      <th className="py-3 px-2 text-right">Seuil min</th>
-                      <th className="py-3 px-2">Statut</th>
+                    <tr>
+                      <th>Produit</th>
+                      <th>Lieu</th>
+                      <th className="text-right">Stock</th>
+                      <th className="text-right">Seuil min</th>
+                      <th>Statut</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.stock.map((s: any) => (
-                      <tr key={s.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-2">{s.product?.name}</td>
-                        <td className="py-3 px-2">{s.pointOfSale?.name || s.depot?.name || '—'}</td>
-                        <td className="py-3 px-2 text-right">{s.quantity}</td>
-                        <td className="py-3 px-2 text-right">{s.product?.minStockLevel}</td>
-                        <td className="py-3 px-2">
-                          <span className={`badge ${s.quantity <= s.product?.minStockLevel ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                      <tr key={s.id}>
+                        <td>{s.product?.name}</td>
+                        <td>{s.pointOfSale?.name || s.depot?.name || '—'}</td>
+                        <td className="text-right">{s.quantity}</td>
+                        <td className="text-right">{s.product?.minStockLevel}</td>
+                        <td>
+                          <span className={s.quantity <= s.product?.minStockLevel ? 'badge-danger' : 'badge-success'}>
                             {s.quantity <= s.product?.minStockLevel ? 'Alerte' : 'OK'}
                           </span>
                         </td>
@@ -259,34 +292,34 @@ export default function RapportsPage() {
             )}
 
             {data.batches && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="table-container border-0 rounded-none shadow-none">
+                <table className="table">
                   <thead>
-                    <tr className="text-left text-gray-500 border-b">
-                      <th className="py-3 px-2">Lot</th>
-                      <th className="py-3 px-2">Produit</th>
-                      <th className="py-3 px-2">Date</th>
-                      <th className="py-3 px-2 text-right">Produit</th>
-                      <th className="py-3 px-2 text-right">Perte</th>
-                      <th className="py-3 px-2">Destination</th>
+                    <tr>
+                      <th>Lot</th>
+                      <th>Produit</th>
+                      <th>Date</th>
+                      <th className="text-right">Produit</th>
+                      <th className="text-right">Perte</th>
+                      <th>Destination</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.batches.map((b: any) => (
-                      <tr key={b.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-2 font-mono text-xs">{b.batchNumber}</td>
-                        <td className="py-3 px-2">{b.product?.name}</td>
-                        <td className="py-3 px-2">{new Date(b.productionDate).toLocaleDateString('fr-FR')}</td>
-                        <td className="py-3 px-2 text-right">{b.quantityProduced}</td>
-                        <td className="py-3 px-2 text-right text-red-600">{b.quantityLost || '—'}</td>
-                        <td className="py-3 px-2">{b.destinationDepot?.name || '—'}</td>
+                      <tr key={b.id}>
+                        <td className="font-mono text-xs">{b.batchNumber}</td>
+                        <td>{b.product?.name}</td>
+                        <td>{new Date(b.productionDate).toLocaleDateString('fr-FR')}</td>
+                        <td className="text-right">{b.quantityProduced}</td>
+                        <td className="text-right text-red-600">{b.quantityLost || '—'}</td>
+                        <td>{b.destinationDepot?.name || '—'}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr className="font-bold border-t-2">
-                      <td colSpan={3} className="py-3 px-2 text-right">Total:</td>
-                      <td className="py-3 px-2 text-right">{data.totalProduced}</td>
+                      <td colSpan={3} className="text-right px-4 py-3">Total:</td>
+                      <td className="px-4 py-3 text-right">{data.totalProduced}</td>
                       <td colSpan={2}></td>
                     </tr>
                   </tfoot>
@@ -295,27 +328,27 @@ export default function RapportsPage() {
             )}
 
             {data.clients && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+              <div className="table-container border-0 rounded-none shadow-none">
+                <table className="table">
                   <thead>
-                    <tr className="text-left text-gray-500 border-b">
-                      <th className="py-3 px-2">Nom</th>
-                      <th className="py-3 px-2">Type</th>
-                      <th className="py-3 px-2">Téléphone</th>
-                      <th className="py-3 px-2">Email</th>
-                      <th className="py-3 px-2 text-right">Ventes</th>
-                      <th className="py-3 px-2 text-right">Commandes</th>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Type</th>
+                      <th>Téléphone</th>
+                      <th>Email</th>
+                      <th className="text-right">Ventes</th>
+                      <th className="text-right">Commandes</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.clients.map((c: any) => (
-                      <tr key={c.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-2 font-medium">{c.name}</td>
-                        <td className="py-3 px-2">{c.type}</td>
-                        <td className="py-3 px-2">{c.phone || '—'}</td>
-                        <td className="py-3 px-2">{c.email || '—'}</td>
-                        <td className="py-3 px-2 text-right">{c._count?.sales || 0}</td>
-                        <td className="py-3 px-2 text-right">{c._count?.orders || 0}</td>
+                      <tr key={c.id}>
+                        <td className="font-medium">{c.name}</td>
+                        <td>{c.type}</td>
+                        <td>{c.phone || '—'}</td>
+                        <td>{c.email || '—'}</td>
+                        <td className="text-right">{c._count?.sales || 0}</td>
+                        <td className="text-right">{c._count?.orders || 0}</td>
                       </tr>
                     ))}
                   </tbody>

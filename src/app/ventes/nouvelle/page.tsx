@@ -143,17 +143,15 @@ export default function NouvelleVentePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">Nouvelle vente</h1>
-        <div className="flex gap-2">
-          {['PARTICULIER', 'PROFESSIONNEL', 'GROSSISTE'].map(type => (
+        <div className="tabs">
+          {(['PARTICULIER', 'PROFESSIONNEL', 'GROSSISTE'] as const).map(type => (
             <button
               key={type}
               onClick={() => setClientType(type)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                clientType === type ? 'bg-lcg-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              className={clientType === type ? 'tab-active' : 'tab'}
             >
               {type === 'PARTICULIER' ? 'Particulier' : type === 'PROFESSIONNEL' ? 'Professionnel' : 'Grossiste'}
             </button>
@@ -164,51 +162,95 @@ export default function NouvelleVentePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
           <div className="card">
-            <input
-              type="text"
-              className="input-field text-lg"
-              placeholder="Rechercher un produit..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoFocus
-            />
+            <div className="relative">
+              <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                className="input-field pl-10 text-lg"
+                placeholder="Rechercher un produit..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoFocus
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {filteredProducts.map(product => (
-              <button
-                key={product.id}
-                onClick={() => addToCart(product)}
-                className="card hover:shadow-md transition-shadow text-left cursor-pointer p-3"
-                disabled={getPrice(product) === 0}
-              >
-                <p className="font-medium text-sm">{product.name}</p>
-                <p className="text-lcg-500 font-bold mt-1">{formatCurrency(getPrice(product))}</p>
-                <p className="text-xs text-gray-400">{product.unit}</p>
-              </button>
-            ))}
-          </div>
+          {filteredProducts.length === 0 ? (
+            <div className="card">
+              <div className="empty-state py-8">
+                <div className="empty-state-icon">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="empty-state-text">Aucun produit trouvé</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {filteredProducts.map(product => (
+                <button
+                  key={product.id}
+                  onClick={() => addToCart(product)}
+                  className="card-hover text-left cursor-pointer p-3"
+                  disabled={getPrice(product) === 0}
+                >
+                  <p className="font-medium text-sm">{product.name}</p>
+                  <p className="text-lcg-500 font-bold mt-1">{formatCurrency(getPrice(product))}</p>
+                  <p className="text-xs text-gray-400">{product.unit}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
           <div className="card">
-            <h3 className="font-semibold mb-3">Panier ({cart.length} articles)</h3>
+            <h3 className="text-base font-semibold text-gray-900 mb-3">Panier ({cart.length} articles)</h3>
             {cart.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">Panier vide</p>
+              <div className="empty-state py-8">
+                <div className="empty-state-icon">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                  </svg>
+                </div>
+                <p className="empty-state-text">Panier vide</p>
+              </div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {cart.map(item => (
-                  <div key={item.productId} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{item.productName}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-sm">-</button>
-                        <span className="text-sm font-medium">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center text-sm">+</button>
+                  <div key={item.productId} className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{item.productName}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <button
+                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                          className="w-7 h-7 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                          </svg>
+                        </button>
+                        <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          className="w-7 h-7 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right ml-2">
                       <p className="text-sm font-bold">{formatCurrency(item.total)}</p>
-                      <button onClick={() => removeFromCart(item.productId)} className="text-xs text-red-500">Retirer</button>
+                      <button onClick={() => removeFromCart(item.productId)} className="text-xs text-red-500 hover:underline mt-0.5">
+                        <svg className="w-3.5 h-3.5 inline mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Retirer
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -223,24 +265,39 @@ export default function NouvelleVentePage() {
           </div>
 
           <div className="card">
-            <h3 className="font-semibold mb-3">Paiement</h3>
-            <select
-              className="input-field mb-3"
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-            >
-              <option value="ESPÈCES">Espèces</option>
-              <option value="MOBILE_MONEY">Mobile Money</option>
-              <option value="CARTE_BANCAIRE">Carte bancaire</option>
-              <option value="VIREMENT">Virement</option>
-            </select>
-            <button
-              onClick={handleSubmit}
-              disabled={loading || cart.length === 0}
-              className="btn-primary w-full py-3 text-lg"
-            >
-              {loading ? 'Enregistrement...' : `Encaisser ${formatCurrency(total)}`}
-            </button>
+            <h3 className="text-base font-semibold text-gray-900 mb-3">Paiement</h3>
+            <div className="space-y-3">
+              <div className="relative">
+                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <select
+                  className="input-field pl-10"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <option value="ESPÈCES">Espèces</option>
+                  <option value="MOBILE_MONEY">Mobile Money</option>
+                  <option value="CARTE_BANCAIRE">Carte bancaire</option>
+                  <option value="VIREMENT">Virement</option>
+                </select>
+              </div>
+              <button
+                onClick={handleSubmit}
+                disabled={loading || cart.length === 0}
+                className="btn-primary w-full py-3 text-lg"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Enregistrement...
+                  </span>
+                ) : `Encaisser ${formatCurrency(total)}`}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -56,70 +56,78 @@ export default function AdministrationPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">Administration</h1>
       </div>
 
-      <div className="flex gap-2 mb-4">
-        {['users', 'settings'].map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${
-              tab === t ? 'bg-lcg-500 text-white' : 'bg-gray-100 text-gray-600'
-            }`}
-          >
-            {t === 'users' ? '👥 Utilisateurs' : '⚙️ Paramètres'}
-          </button>
-        ))}
+      <div className="tabs">
+        <button onClick={() => setTab('users')} className={tab === 'users' ? 'tab-active' : 'tab'}>
+          <svg className="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+          </svg>
+          Utilisateurs
+        </button>
+        <button onClick={() => setTab('settings')} className={tab === 'settings' ? 'tab-active' : 'tab'}>
+          <svg className="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Paramètres
+        </button>
       </div>
 
       {tab === 'users' && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Gestion des utilisateurs</h3>
-            <button onClick={() => setShowUserModal(true)} className="btn-primary">+ Ajouter</button>
+            <h3 className="text-base font-semibold text-gray-900">Gestion des utilisateurs</h3>
+            <button onClick={() => setShowUserModal(true)} className="btn-primary">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Ajouter
+            </button>
           </div>
 
           {loading ? (
-            <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lcg-500 mx-auto"></div></div>
+            <div className="loader">
+              <div className="loader-spinner" />
+            </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="table-container border-0 rounded-none shadow-none">
+              <table className="table">
                 <thead>
-                  <tr className="text-left text-gray-500 border-b">
-                    <th className="py-3 px-2">Nom</th>
-                    <th className="py-3 px-2">Identifiant</th>
-                    <th className="py-3 px-2">Email</th>
-                    <th className="py-3 px-2">Rôle</th>
-                    <th className="py-3 px-2">Point de vente</th>
-                    <th className="py-3 px-2">Statut</th>
-                    <th className="py-3 px-2">Dernière connexion</th>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Identifiant</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Point de vente</th>
+                    <th>Statut</th>
+                    <th>Dernière connexion</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((u: any) => (
-                    <tr key={u.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-2 font-medium">{u.firstName} {u.lastName}</td>
-                      <td className="py-3 px-2 font-mono text-xs">{u.username}</td>
-                      <td className="py-3 px-2">{u.email}</td>
-                      <td className="py-3 px-2">
+                    <tr key={u.id}>
+                      <td className="font-medium">{u.firstName} {u.lastName}</td>
+                      <td className="font-mono text-xs">{u.username}</td>
+                      <td>{u.email}</td>
+                      <td>
                         <span className={`badge ${
-                          u.role === 'ADMIN' ? 'bg-red-100 text-red-800' :
-                          u.role === 'DIRECTION' ? 'bg-purple-100 text-purple-800' :
-                          u.role === 'RESPONSABLE_STOCK' ? 'bg-blue-100 text-blue-800' :
-                          u.role === 'RESPONSABLE_PRODUCTION' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-green-100 text-green-800'
+                          u.role === 'ADMIN' ? 'badge-danger' :
+                          u.role === 'DIRECTION' ? 'badge-info' :
+                          u.role === 'RESPONSABLE_STOCK' ? 'badge-info' :
+                          u.role === 'RESPONSABLE_PRODUCTION' ? 'badge-warning' :
+                          'badge-success'
                         }`}>{u.role}</span>
                       </td>
-                      <td className="py-3 px-2">{u.pointOfSale?.name || '—'}</td>
-                      <td className="py-3 px-2">
-                        <span className={`badge ${u.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      <td>{u.pointOfSale?.name || '—'}</td>
+                      <td>
+                        <span className={u.isActive ? 'badge-success' : 'badge-danger'}>
                           {u.isActive ? 'Actif' : 'Inactif'}
                         </span>
                       </td>
-                      <td className="py-3 px-2 text-xs">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString('fr-FR') : 'Jamais'}</td>
+                      <td className="text-xs">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString('fr-FR') : 'Jamais'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -131,60 +139,89 @@ export default function AdministrationPage() {
 
       {tab === 'settings' && (
         <div className="card">
-          <h3 className="font-semibold mb-4">Paramètres généraux</h3>
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Paramètres généraux</h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div><p className="font-medium">Sauvegarde automatique</p><p className="text-xs text-gray-500">Activée par défaut</p></div>
-              <span className="badge bg-green-100 text-green-800">Activée</span>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div>
+                <p className="font-medium">Sauvegarde automatique</p>
+                <p className="text-xs text-gray-500">Activée par défaut</p>
+              </div>
+              <span className="badge-success">Activée</span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div><p className="font-medium">Version du logiciel</p><p className="text-xs text-gray-500">Dernière mise à jour</p></div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div>
+                <p className="font-medium">Version du logiciel</p>
+                <p className="text-xs text-gray-500">Dernière mise à jour</p>
+              </div>
               <span className="text-sm font-mono">v1.0.0</span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div><p className="font-medium">Base de données</p><p className="text-xs text-gray-500">SQLite (dev) / PostgreSQL (prod)</p></div>
-              <span className="text-sm">✅ Connectée</span>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div>
+                <p className="font-medium">Base de données</p>
+                <p className="text-xs text-gray-500">SQLite (dev) / PostgreSQL (prod)</p>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm text-emerald-700">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Connectée
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {showUserModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Nouvel utilisateur</h2>
-            <form onSubmit={handleCreateUser} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="label-field">Prénom</label><input name="firstName" className="input-field" required /></div>
-                <div><label className="label-field">Nom</label><input name="lastName" className="input-field" required /></div>
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="text-lg font-bold">Nouvel utilisateur</h2>
+              <button type="button" onClick={() => setShowUserModal(false)} className="btn-ghost btn-sm p-1">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleCreateUser}>
+              <div className="modal-body space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="label-field">Prénom</label>
+                    <input name="firstName" className="input-field" required />
+                  </div>
+                  <div>
+                    <label className="label-field">Nom</label>
+                    <input name="lastName" className="input-field" required />
+                  </div>
+                </div>
+                <div>
+                  <label className="label-field">Nom d'utilisateur</label>
+                  <input name="username" className="input-field" required />
+                </div>
+                <div>
+                  <label className="label-field">Email</label>
+                  <input name="email" type="email" className="input-field" required />
+                </div>
+                <div>
+                  <label className="label-field">Mot de passe</label>
+                  <input name="password" type="password" className="input-field" required />
+                </div>
+                <div>
+                  <label className="label-field">Rôle</label>
+                  <select name="role" className="input-field">
+                    <option value="CAISSIER">Caissier / Vendeur</option>
+                    <option value="RESPONSABLE_STOCK">Responsable de stock</option>
+                    <option value="RESPONSABLE_PRODUCTION">Responsable de production</option>
+                    <option value="DIRECTION">Direction</option>
+                    <option value="ADMIN">Administrateur</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label-field">Téléphone</label>
+                  <input name="phone" className="input-field" />
+                </div>
               </div>
-              <div>
-                <label className="label-field">Nom d'utilisateur</label>
-                <input name="username" className="input-field" required />
-              </div>
-              <div>
-                <label className="label-field">Email</label>
-                <input name="email" type="email" className="input-field" required />
-              </div>
-              <div>
-                <label className="label-field">Mot de passe</label>
-                <input name="password" type="password" className="input-field" required />
-              </div>
-              <div>
-                <label className="label-field">Rôle</label>
-                <select name="role" className="input-field">
-                  <option value="CAISSIER">Caissier / Vendeur</option>
-                  <option value="RESPONSABLE_STOCK">Responsable de stock</option>
-                  <option value="RESPONSABLE_PRODUCTION">Responsable de production</option>
-                  <option value="DIRECTION">Direction</option>
-                  <option value="ADMIN">Administrateur</option>
-                </select>
-              </div>
-              <div>
-                <label className="label-field">Téléphone</label>
-                <input name="phone" className="input-field" />
-              </div>
-              <div className="flex gap-3 justify-end">
+              <div className="modal-footer">
                 <button type="button" onClick={() => setShowUserModal(false)} className="btn-secondary">Annuler</button>
                 <button type="submit" className="btn-primary">Créer</button>
               </div>

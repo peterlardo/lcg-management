@@ -63,20 +63,35 @@ export default function StocksPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">Gestion des stocks</h1>
         <div className="flex gap-2">
           {['ADMIN', 'RESPONSABLE_STOCK'].includes(user?.role || '') && (
-            <button onClick={() => setShowAdjust(true)} className="btn-primary">+ Mouvement</button>
+            <button onClick={() => setShowAdjust(true)} className="btn-primary">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Mouvement
+            </button>
           )}
-          <button onClick={fetchData} className="btn-secondary">Actualiser</button>
+          <button onClick={fetchData} className="btn-secondary">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Actualiser
+          </button>
         </div>
       </div>
 
       {lowStock.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <h3 className="font-semibold text-red-800">⚠ Alertes de stock bas</h3>
+          <div className="flex items-center gap-2 mb-2">
+            <svg className="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <h3 className="font-semibold text-red-800">Alertes de stock bas</h3>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
             {lowStock.slice(0, 8).map((s: any) => (
               <div key={s.id} className="bg-white p-2 rounded-lg text-sm">
@@ -88,112 +103,127 @@ export default function StocksPage() {
         </div>
       )}
 
-      <div className="flex gap-2 mb-4">
-        <button onClick={() => setTab('stock')} className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === 'stock' ? 'bg-lcg-500 text-white' : 'bg-gray-100'}`}>Stock actuel</button>
-        <button onClick={() => setTab('movements')} className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === 'movements' ? 'bg-lcg-500 text-white' : 'bg-gray-100'}`}>Mouvements</button>
+      <div className="tabs">
+        <button onClick={() => setTab('stock')} className={tab === 'stock' ? 'tab-active' : 'tab'}>Stock actuel</button>
+        <button onClick={() => setTab('movements')} className={tab === 'movements' ? 'tab-active' : 'tab'}>Mouvements</button>
       </div>
 
-      <div className="card">
-        {loading ? (
-          <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lcg-500 mx-auto"></div></div>
-        ) : tab === 'stock' ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="py-3 px-2">Produit</th>
-                  <th className="py-3 px-2">Type</th>
-                  <th className="py-3 px-2">Lieu</th>
-                  <th className="py-3 px-2 text-right">Quantité</th>
-                  <th className="py-3 px-2 text-right">Stock min</th>
-                  <th className="py-3 px-2">Statut</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stock.map((s: any) => (
-                  <tr key={s.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-2 font-medium">{s.product.name}</td>
-                    <td className="py-3 px-2 text-xs">{s.product.type}</td>
-                    <td className="py-3 px-2">{s.pointOfSale?.name || s.depot?.name || '—'}</td>
-                    <td className="py-3 px-2 text-right font-bold">{s.quantity}</td>
-                    <td className="py-3 px-2 text-right">{s.product.minStockLevel}</td>
-                    <td className="py-3 px-2">
-                      <span className={`badge ${
-                        s.quantity <= 0 ? 'bg-red-100 text-red-800' :
-                        s.quantity <= s.product.minStockLevel ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-green-100 text-green-800'
-                      }`}>
-                        {s.quantity <= 0 ? 'Rupture' : s.quantity <= s.product.minStockLevel ? 'Faible' : 'OK'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {loading ? (
+        <div className="card">
+          <div className="loader">
+            <div className="loader-spinner" />
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="py-3 px-2">Date</th>
-                  <th className="py-3 px-2">Produit</th>
-                  <th className="py-3 px-2">Type</th>
-                  <th className="py-3 px-2 text-right">Qté</th>
-                  <th className="py-3 px-2">Motif</th>
-                  <th className="py-3 px-2">Utilisateur</th>
+        </div>
+      ) : tab === 'stock' ? (
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Type</th>
+                <th>Lieu</th>
+                <th className="text-right">Quantité</th>
+                <th className="text-right">Stock min</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stock.map((s: any) => (
+                <tr key={s.id}>
+                  <td className="font-medium">{s.product.name}</td>
+                  <td className="text-xs">{s.product.type}</td>
+                  <td>{s.pointOfSale?.name || s.depot?.name || '—'}</td>
+                  <td className="text-right font-bold">{s.quantity}</td>
+                  <td className="text-right">{s.product.minStockLevel}</td>
+                  <td>
+                    <span className={
+                      s.quantity <= 0 ? 'badge-danger' :
+                      s.quantity <= s.product.minStockLevel ? 'badge-warning' :
+                      'badge-success'
+                    }>
+                      {s.quantity <= 0 ? 'Rupture' : s.quantity <= s.product.minStockLevel ? 'Faible' : 'OK'}
+                    </span>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {movements.map((m: any) => (
-                  <tr key={m.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-2">{new Date(m.createdAt).toLocaleDateString('fr-FR')}</td>
-                    <td className="py-3 px-2">{m.product?.name}</td>
-                    <td className="py-3 px-2">
-                      <span className={`badge ${m.type === 'ENTRÉE' ? 'bg-green-100 text-green-800' : m.type === 'SORTIE' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
-                        {m.type}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-right">{m.quantity}</td>
-                    <td className="py-3 px-2 text-xs">{m.reason || '—'}</td>
-                    <td className="py-3 px-2">{m.user?.firstName} {m.user?.lastName}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Produit</th>
+                <th>Type</th>
+                <th className="text-right">Qté</th>
+                <th>Motif</th>
+                <th>Utilisateur</th>
+              </tr>
+            </thead>
+            <tbody>
+              {movements.map((m: any) => (
+                <tr key={m.id}>
+                  <td>{new Date(m.createdAt).toLocaleDateString('fr-FR')}</td>
+                  <td>{m.product?.name}</td>
+                  <td>
+                    <span className={
+                      m.type === 'ENTRÉE' ? 'badge-success' :
+                      m.type === 'SORTIE' ? 'badge-danger' :
+                      'badge-info'
+                    }>
+                      {m.type}
+                    </span>
+                  </td>
+                  <td className="text-right">{m.quantity}</td>
+                  <td className="text-xs">{m.reason || '—'}</td>
+                  <td>{m.user?.firstName} {m.user?.lastName}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showAdjust && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <h2 className="text-xl font-bold mb-4">Mouvement de stock</h2>
-            <form onSubmit={handleAdjust} className="space-y-4">
-              <div>
-                <label className="label-field">Produit</label>
-                <select name="productId" className="input-field" required>
-                  {stock.map((s: any) => <option key={s.id} value={s.productId}>{s.product.name}</option>)}
-                </select>
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="text-lg font-bold">Mouvement de stock</h2>
+              <button type="button" onClick={() => setShowAdjust(false)} className="btn-ghost btn-sm p-1">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleAdjust}>
+              <div className="modal-body space-y-4">
+                <div>
+                  <label className="label-field">Produit</label>
+                  <select name="productId" className="input-field" required>
+                    {stock.map((s: any) => <option key={s.id} value={s.productId}>{s.product.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="label-field">Type de mouvement</label>
+                  <select name="type" className="input-field" required>
+                    <option value="ENTRÉE">Entrée en stock</option>
+                    <option value="SORTIE">Sortie de stock</option>
+                    <option value="PERTE">Perte / Fonte</option>
+                    <option value="AJUSTEMENT">Ajustement</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label-field">Quantité</label>
+                  <input name="quantity" type="number" className="input-field" required min="1" />
+                </div>
+                <div>
+                  <label className="label-field">Motif</label>
+                  <input name="reason" className="input-field" placeholder="Raison du mouvement" />
+                </div>
               </div>
-              <div>
-                <label className="label-field">Type de mouvement</label>
-                <select name="type" className="input-field" required>
-                  <option value="ENTRÉE">Entrée en stock</option>
-                  <option value="SORTIE">Sortie de stock</option>
-                  <option value="PERTE">Perte / Fonte</option>
-                  <option value="AJUSTEMENT">Ajustement</option>
-                </select>
-              </div>
-              <div>
-                <label className="label-field">Quantité</label>
-                <input name="quantity" type="number" className="input-field" required min="1" />
-              </div>
-              <div>
-                <label className="label-field">Motif</label>
-                <input name="reason" className="input-field" placeholder="Raison du mouvement" />
-              </div>
-              <div className="flex gap-3 justify-end">
+              <div className="modal-footer">
                 <button type="button" onClick={() => setShowAdjust(false)} className="btn-secondary">Annuler</button>
                 <button type="submit" className="btn-primary">Enregistrer</button>
               </div>

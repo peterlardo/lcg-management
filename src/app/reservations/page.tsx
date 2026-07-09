@@ -71,92 +71,125 @@ export default function ReservationsPage() {
   const upcomingReservations = reservations.filter(r => r.status === 'EN_ATTENTE' || r.status === 'CONFIRMÉE')
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">Réservations</h1>
-        <button onClick={() => setShowModal(true)} className="btn-primary">+ Nouvelle réservation</button>
+        <button onClick={() => setShowModal(true)} className="btn-primary">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Nouvelle réservation
+        </button>
       </div>
 
       {upcomingReservations.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-          <h3 className="font-semibold text-yellow-800">📅 Réservations à venir ({upcomingReservations.length})</h3>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 className="font-semibold text-amber-800">Réservations à venir ({upcomingReservations.length})</h3>
+          </div>
         </div>
       )}
 
-      <div className="card">
-        {loading ? (
-          <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lcg-500 mx-auto"></div></div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="py-3 px-2">Réf</th>
-                  <th className="py-3 px-2">Client</th>
-                  <th className="py-3 px-2">Date</th>
-                  <th className="py-3 px-2">Produits</th>
-                  <th className="py-3 px-2">Statut</th>
-                  <th className="py-3 px-2">Créée le</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reservations.map((r: any) => (
-                  <tr key={r.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-2 font-mono text-xs">{r.reference}</td>
-                    <td className="py-3 px-2">{r.client?.name}</td>
-                    <td className="py-3 px-2">{formatDate(r.scheduledDate)} {r.scheduledTime || ''}</td>
-                    <td className="py-3 px-2 text-xs">
-                      {r.items?.map((i: any) => `${i.product?.name} x${i.quantity}`).join(', ')}
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className={`badge ${getStatusColor(r.status)}`}>{getReservationStatusLabel(r.status)}</span>
-                    </td>
-                    <td className="py-3 px-2 text-xs">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {loading ? (
+        <div className="card">
+          <div className="loader">
+            <div className="loader-spinner" />
           </div>
-        )}
-      </div>
+        </div>
+      ) : reservations.length === 0 ? (
+        <div className="card">
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p className="empty-state-title">Aucune réservation</p>
+            <p className="empty-state-text">Créez une nouvelle réservation pour un client.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Réf</th>
+                <th>Client</th>
+                <th>Date</th>
+                <th>Produits</th>
+                <th>Statut</th>
+                <th>Créée le</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reservations.map((r: any) => (
+                <tr key={r.id}>
+                  <td className="font-mono text-xs">{r.reference}</td>
+                  <td>{r.client?.name}</td>
+                  <td>{formatDate(r.scheduledDate)} {r.scheduledTime || ''}</td>
+                  <td className="text-xs">
+                    {r.items?.map((i: any) => `${i.product?.name} x${i.quantity}`).join(', ')}
+                  </td>
+                  <td>
+                    <span className={`badge ${getStatusColor(r.status)}`}>{getReservationStatusLabel(r.status)}</span>
+                  </td>
+                  <td className="text-xs">{new Date(r.createdAt).toLocaleDateString('fr-FR')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
-            <h2 className="text-xl font-bold mb-4">Nouvelle réservation</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="label-field">Client</label>
-                <select name="clientId" className="input-field" required>
-                  <option value="">Sélectionner un client</option>
-                  {clients.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="text-lg font-bold">Nouvelle réservation</h2>
+              <button type="button" onClick={() => setShowModal(false)} className="btn-ghost btn-sm p-1">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleCreate}>
+              <div className="modal-body space-y-4">
                 <div>
-                  <label className="label-field">Date souhaitée</label>
-                  <input name="scheduledDate" type="date" className="input-field" required />
+                  <label className="label-field">Client</label>
+                  <select name="clientId" className="input-field" required>
+                    <option value="">Sélectionner un client</option>
+                    {clients.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
                 </div>
-                <div>
-                  <label className="label-field">Heure</label>
-                  <input name="scheduledTime" type="time" className="input-field" />
-                </div>
-              </div>
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-2">Produits réservés</h4>
-                {products.map((p: any) => (
-                  <div key={p.id} className="flex items-center gap-2 mb-2">
-                    <span className="flex-1 text-sm">{p.name}</span>
-                    <input type="number" name="productId[]" value={p.id} className="hidden" readOnly />
-                    <input name="quantity[]" type="number" className="input-field w-20" placeholder="Qté" min="0" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="label-field">Date souhaitée</label>
+                    <input name="scheduledDate" type="date" className="input-field" required />
                   </div>
-                ))}
+                  <div>
+                    <label className="label-field">Heure</label>
+                    <input name="scheduledTime" type="time" className="input-field" />
+                  </div>
+                </div>
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-2">Produits réservés</h4>
+                  {products.map((p: any) => (
+                    <div key={p.id} className="flex items-center gap-2 mb-2">
+                      <span className="flex-1 text-sm">{p.name}</span>
+                      <input type="number" name="productId[]" value={p.id} className="hidden" readOnly />
+                      <input name="quantity[]" type="number" className="input-field w-20" placeholder="Qté" min="0" />
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <label className="label-field">Notes</label>
+                  <textarea name="notes" className="input-field" rows={2}></textarea>
+                </div>
               </div>
-              <div>
-                <label className="label-field">Notes</label>
-                <textarea name="notes" className="input-field" rows={2}></textarea>
-              </div>
-              <div className="flex gap-3 justify-end">
+              <div className="modal-footer">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">Annuler</button>
                 <button type="submit" className="btn-primary">Créer la réservation</button>
               </div>
