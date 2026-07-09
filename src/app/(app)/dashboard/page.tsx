@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { formatCurrency } from '@/lib/utils'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement } from 'chart.js'
-import { Bar, Doughnut, Line } from 'react-chartjs-2'
+import { Bar, Doughnut } from 'react-chartjs-2'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement)
 
@@ -18,9 +18,14 @@ interface DashboardData {
   pendingOrders: number
   todayProduction: number
   salesByProduct: { name: string; total: number }[]
-  salesByHour: { hour: string; total: number }[]
   topProducts: { name: string; total: number }[]
   lowStockProducts: { name: string; quantity: number; minLevel: number }[]
+  recentSales: {
+    id: number; reference: string; total: number; createdAt: string
+    client: { name: string } | null
+    items: { product: { name: string }; quantity: number }[]
+    payments: { method: string; amount: number }[]
+  }[]
 }
 
 const statCards = [
@@ -133,26 +138,48 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card">
-          <h3 className="text-base font-semibold text-gray-900 mb-4">Ventes du jour par heure</h3>
-          {data?.salesByHour && data.salesByHour.length > 0 ? (
-            <Line
-              data={{
-                labels: data.salesByHour.map(s => s.hour),
-                datasets: [{
-                  label: 'Ventes',
-                  data: data.salesByHour.map(s => s.total),
-                  borderColor: '#1e40af',
-                  backgroundColor: 'rgba(30, 64, 175, 0.1)',
-                  fill: true,
-                  tension: 0.3,
-                }],
-              }}
-              options={{ responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } }, x: { grid: { display: false } } } }}
-            />
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Dernières ventes</h3>
+          {data?.recentSales && data.recentSales.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Produits</th>
+                    <th className="text-center">Qté</th>
+                    <th>Client</th>
+                    <th className="text-right">Montant</th>
+                    <th>Paiement</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.recentSales.map(sale => (
+                    <tr key={sale.id}>
+                      <td className="text-sm max-w-[160px] truncate">
+                        {sale.items?.map(i => i.product?.name).join(', ')}
+                      </td>
+                      <td className="text-center text-sm">
+                        {sale.items?.reduce((s, i) => s + i.quantity, 0)}
+                      </td>
+                      <td className="text-sm">{sale.client?.name || 'Anonyme'}</td>
+                      <td className="text-right font-bold text-sm">{formatCurrency(sale.total)}</td>
+                      <td>
+                        <span className="badge bg-gray-100 text-gray-700 text-xs">
+                          {sale.payments?.[0]?.method === 'ESPÈCES' ? 'Espèces'
+                            : sale.payments?.[0]?.method === 'MOBILE_MONEY' ? 'Mobile Money'
+                            : sale.payments?.[0]?.method === 'CARTE_BANCAIRE' ? 'Carte'
+                            : sale.payments?.[0]?.method === 'VIREMENT' ? 'Virement'
+                            : '—'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="empty-state py-12">
-              <div className="empty-state-icon">📊</div>
-              <p className="empty-state-text">Aucune vente aujourd'hui</p>
+              <div className="empty-state-icon">📋</div>
+              <p className="empty-state-text">Aucune vente récente</p>
             </div>
           )}
         </div>

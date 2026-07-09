@@ -81,6 +81,17 @@ export async function GET() {
       return { hour, total: salesInHour.reduce((sum, s) => sum + s.total, 0) }
     })
 
+    const recentSales = await prisma.sale.findMany({
+      where: pointOfSaleFilter,
+      include: {
+        items: { include: { product: { select: { name: true } } } },
+        client: { select: { name: true } },
+        payments: { select: { method: true, amount: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    })
+
     return NextResponse.json({
       todayRevenue,
       weekRevenue,
@@ -96,6 +107,7 @@ export async function GET() {
       lowStockProducts: lowStockProducts
         .filter(s => s.quantity <= s.product.minStockLevel)
         .map(s => ({ name: s.product.name, quantity: s.quantity, minLevel: s.product.minStockLevel })),
+      recentSales,
     })
   } catch (error) {
     console.error('Dashboard error:', error)
