@@ -35,9 +35,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md animate-slide-up">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 relative">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-lcg-500 to-lcg-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-lcg-500/20">
-              <span className="text-white text-2xl font-bold">LCG</span>
-            </div>
+            <img src="/logo-lcg.jpeg" alt="LCG" className="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-lg shadow-lcg-500/20 object-cover" />
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">La Congolaise des Glaçons</h1>
             <p className="text-gray-400 mt-1.5 text-sm">Connectez-vous à votre espace de gestion</p>
           </div>

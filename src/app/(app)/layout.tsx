@@ -43,9 +43,7 @@ function Sidebar({ user, pathname, onNav }: { user: any; pathname: string; onNav
     <aside className="w-64 bg-gradient-to-b from-lcg-800 to-lcg-900 flex flex-col shrink-0 h-screen sticky top-0">
       <div className="p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm">
-            <span className="text-white font-bold text-lg">L</span>
-          </div>
+          <img src="/logo-lcg.jpeg" alt="LCG" className="w-10 h-10 rounded-xl object-cover" />
           <div>
             <h2 className="font-bold text-white text-sm tracking-tight">LCG Management</h2>
             <p className="text-xs text-blue-200/60">La Congolaise des Glaçons</p>
@@ -238,7 +236,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       <main className="flex-1 min-h-screen overflow-auto">
-        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 lg:px-6 py-2 flex items-center justify-end">
+        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 lg:px-6 py-2 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-1 overflow-x-auto">
+            {[
+              { href: '/depots', label: 'Dépôts', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z', roles: ['ADMIN', 'DIRECTION', 'RESPONSABLE_STOCK'] },
+              { href: '/points-de-vente', label: 'Points de vente', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z', roles: ['ADMIN', 'DIRECTION', 'RESPONSABLE_STOCK'] },
+              { href: '/clients', label: 'Clients', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z', roles: ['ADMIN', 'DIRECTION', 'CAISSIER'] },
+              { href: '/rapports', label: 'Rapports', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', roles: ['ADMIN', 'DIRECTION', 'RESPONSABLE_STOCK', 'RESPONSABLE_PRODUCTION'] },
+              { href: '/administration', label: 'Admin', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z', roles: ['ADMIN'] },
+            ].filter(item => item.roles.includes(user?.role || '')).map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-lcg-600 hover:bg-lcg-50 rounded-lg transition-colors whitespace-nowrap shrink-0"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                </svg>
+                {item.label}
+              </Link>
+            ))}
+          </div>
           <AlertBell />
         </div>
         <div className="p-4 lg:p-6 max-w-7xl mx-auto">

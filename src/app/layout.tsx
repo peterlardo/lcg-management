@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'LCG - La Congolaise des Glaçons',
   description: 'Logiciel de gestion des ventes et du pilotage commercial',
+  icons: { icon: '/logo-lcg.jpeg' },
 }
 
 export default function RootLayout({

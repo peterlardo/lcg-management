@@ -135,6 +135,7 @@ export default function NouvelleVentePage() {
     const methodLabel = paymentMethod === 'ESPÈCES' ? 'Espèces' : paymentMethod === 'MOBILE_MONEY' ? 'Mobile Money' : paymentMethod === 'CARTE_BANCAIRE' ? 'Carte bancaire' : 'Virement'
     const statusLabel = sale.status === 'COMPTANT' ? 'Payé' : sale.status === 'CREDIT' ? 'Crédit' : 'Paiement partiel'
     const paidAmt = sale.paidAmount || 0
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
     return `
       <!DOCTYPE html>
@@ -143,8 +144,7 @@ export default function NouvelleVentePage() {
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:'Courier New',monospace;font-size:11px;color:#1a1a2e;width:80mm;margin:0 auto;padding:12px 8px;line-height:1.4}
         .header{text-align:center;padding-bottom:10px;border-bottom:2px solid #1e40af;margin-bottom:10px}
-        .logo{width:40px;height:40px;background:linear-gradient(135deg,#1e40af,#1a3399);border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
-        .logo span{color:#fff;font-size:18px;font-weight:bold;font-family:Arial,sans-serif}
+        .logo-img{width:40px;height:40px;border-radius:8px;margin:0 auto 6px;display:block;object-fit:cover}
         .company{font-size:12px;font-weight:bold;color:#1e40af;margin-bottom:2px}
         .slogan{font-size:8px;color:#888;letter-spacing:2px;text-transform:uppercase}
         .receipt-title{font-size:10px;font-weight:bold;color:#555;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
@@ -171,7 +171,7 @@ export default function NouvelleVentePage() {
         @media print{body{width:80mm;padding:0}}
       </style></head><body>
       <div class="header">
-        <div class="logo"><span>L</span></div>
+        <img src="${baseUrl}/logo-lcg.jpeg" alt="LCG" class="logo-img" />
         <div class="company">LA CONGOLAISE DES GLAÇONS</div>
         <div class="slogan">LCG Management</div>
       </div>
