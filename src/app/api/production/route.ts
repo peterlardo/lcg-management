@@ -34,11 +34,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const batchNumber = generateReference('PROD')
 
+    const productId = parseInt(body.productId)
+    const quantityProduced = parseInt(body.quantityProduced) || 0
+    const quantityLost = parseInt(body.quantityLost) || 0
+    const destinationDepotId = body.destinationDepotId ? parseInt(body.destinationDepotId) : null
+
     const batch = await prisma.$transaction(async (tx) => {
       const batch = await tx.productionBatch.create({
         data: {
           batchNumber,
-          productId: body.productId,
+          productId,
           quantityProduced: parseInt(body.quantityProduced) || 0,
           quantityLost: parseInt(body.quantityLost) || 0,
           notes: body.notes || null,
@@ -48,35 +53,35 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      if (body.destinationDepotId) {
+      if (destinationDepotId) {
         const existingStock = await tx.stockAtLocation.findFirst({
           where: {
-            productId: parseInt(body.productId),
-            depotId: parseInt(body.destinationDepotId),
+            productId,
+            depotId: destinationDepotId,
             pointOfSaleId: null,
           },
         })
         if (existingStock) {
           await tx.stockAtLocation.update({
             where: { id: existingStock.id },
-            data: { quantity: { increment: parseInt(body.quantityProduced) || 0 } },
+            data: { quantity: { increment: quantityProduced } },
           })
         } else {
           await tx.stockAtLocation.create({
             data: {
-              productId: parseInt(body.productId),
-              depotId: parseInt(body.destinationDepotId),
-              quantity: parseInt(body.quantityProduced) || 0,
+              productId,
+              depotId: destinationDepotId,
+              quantity: quantityProduced,
             },
           })
         }
 
         await tx.stockMovement.create({
           data: {
-            productId: body.productId,
+            productId,
             type: 'ENTRÉE',
-            quantity: parseInt(body.quantityProduced) || 0,
-            depotId: body.destinationDepotId,
+            quantity: quantityProduced,
+            depotId: destinationDepotId,
             userId: user.id,
             reason: 'Production',
             reference: batchNumber,
@@ -84,13 +89,13 @@ export async function POST(request: NextRequest) {
           },
         })
 
-        if (parseInt(body.quantityLost) > 0) {
+        if (quantityLost > 0) {
           await tx.stockMovement.create({
             data: {
-              productId: body.productId,
+              productId,
               type: 'PERTE',
-              quantity: parseInt(body.quantityLost) || 0,
-              depotId: body.destinationDepotId,
+              quantity: quantityLost,
+              depotId: destinationDepotId,
               userId: user.id,
               reason: 'Perte de production',
               reference: batchNumber,

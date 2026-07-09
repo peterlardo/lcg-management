@@ -39,10 +39,17 @@ export default function DistributionPage() {
     const productIds = form.getAll('productId[]')
     const quantities = form.getAll('quantity[]')
 
-    const items = productIds.map((pid, i) => ({
-      productId: parseInt(pid as string),
-      quantity: parseInt(quantities[i] as string),
-    }))
+    const items = productIds
+      .map((pid, i) => ({
+        productId: parseInt(pid as string),
+        quantity: parseInt(quantities[i] as string),
+      }))
+      .filter(item => !isNaN(item.quantity) && item.quantity > 0)
+
+    if (items.length === 0) {
+      toast.error('Ajoutez au moins un produit avec une quantité')
+      return
+    }
 
     const res = await fetch('/api/distribution', {
       method: 'POST',
